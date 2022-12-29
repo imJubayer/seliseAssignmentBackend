@@ -1,8 +1,7 @@
 <?php
 
 use App\Http\Controllers\DashboardController;
-use App\Http\Controllers\AccountController;
-use App\Http\Controllers\DepositController;
+use App\Http\Controllers\BookController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UserController;
@@ -21,8 +20,9 @@ use App\Http\Controllers\PermissionController;
 */
 
 Route::post('/login', [UserController::class, 'login']);
+Route::post('/add-user', [UserController::class, 'addUser']);
 
-Route::middleware(['auth:sanctum', 'role:superadmin|admin'])->group(function(){
+Route::middleware(['auth:sanctum', 'role:superadmin|admin|member'])->group(function(){
     Route::get('/dashboard', [DashboardController::class, 'index']);
     // User
     Route::get('/user/change-status/{user}', [UserController::class, 'changeStatus']);
@@ -38,5 +38,8 @@ Route::middleware(['auth:sanctum', 'role:superadmin|admin'])->group(function(){
     Route::post('/permissions', [PermissionController::class, 'store']);
     Route::patch('/edit-permission/{id}', [PermissionController::class, 'update']);
     Route::get('/add-permission/{permissionId}/role/{roleId}', [PermissionController::class, 'givePermission']);
+
+    // Books
+    Route::resource('/books', BookController::class);
 });
 

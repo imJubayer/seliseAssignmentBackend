@@ -1,10 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
-use App\Models\Deposit;
 use App\Models\User;
-use App\Imports\UsersImport;
 // use Spatie\Permission\Models\Role;
 // use Spatie\Permission\Models\Permission;
 
@@ -13,12 +10,11 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Storage;
-use Maatwebsite\Excel\Facades\Excel;
 
 class UserController extends Controller
 {
     public function index(){
-        $users = User::with('accounts')->whereHas(
+        $users = User::whereHas(
             'roles', function($q){
                 $q->where('name', 'member');
             }
@@ -30,32 +26,20 @@ class UserController extends Controller
 
     public function addUser(Request $request){
         $validator = Validator::make($request->all(), [
-            'name' => 'required|max:255',
+            'firstname' => 'required|max:255',
+            'lastname' => 'required|max:255',
             'email' => 'required|unique:users,email',
-            'phone' => 'required|unique:users,phone',
             'password' => 'required',
-            'image' => 'image|mimes:jpg,png,jpeg|max:2048',
         ]);
         if($validator->fails()){
             $messages = $validator->messages();
             $response = apiResponse(false, 'validation failed', $messages->first(), 401);
         } else {
             try {
-                $image_path = null;
-                if($request->file('profile_image')){
-                    $fileName = pathinfo($request->file('profile_image')->getClientOriginalName(), PATHINFO_FILENAME) .time();
-                    $extension = $request->file('profile_image')->getClientOriginalExtension();
-                    $image_path = $request->file('profile_image')->storeAs(
-                        'image',
-                        $fileName . '.' .$extension,
-                        'public'
-                    );
-                }
                 $user =  User::create([
-                    'name' => $request->input('name'),
+                    'firstname' => $request->input('firstname'),
+                    'lastname' => $request->input('lastname'),
                     'email' => $request->input('email'),
-                    'phone' => $request->input('phone'),
-                    'profile_image' => $image_path,
                     'password' => Hash::make($request->input('password'))
                 ]);
                 $user->assignRole('member');
@@ -69,24 +53,24 @@ class UserController extends Controller
 
     public function login(Request $request){
         $validator = Validator::make($request->all(), [
-            'phone' => 'required',
+            'email' => 'required',
             'password' => 'required',
         ]);
         if($validator->fails()){
             $response = apiResponse(false, 'validation failed', $validator->errors(), 400);
         } else {
-            if(!Auth::attempt(['phone' => $request->phone, 'password' => $request->password, 'status' => 1])){
+            if(!Auth::attempt(['email' => $request->email, 'password' => $request->password, 'status' => 1])){
                 $msg = 'Invalid credential';
-                if(Auth::attempt(['phone' => $request->phone, 'password' => $request->password])){
+                if(Auth::attempt(['email' => $request->email, 'password' => $request->password])){
                     $msg = 'User is not verified';
                 }
                 $response = apiResponse(false, $msg, (object)[], 401);
             } else {
-                $userProfile = getProfileInfo();
+                // $userProfile = getProfileInfo();
                 /** @var \App\Models\MyUserModel $user **/
                 $user = Auth::user();
                 $token = $user->createToken('token')->plainTextToken;
-                $response = apiResponse(true, 'Logged in successfully', (object)['token' => $token, 'user' => $userProfile]);
+                $response = apiResponse(true, 'Logged in successfully', (object)['token' => $token, 'user' => $user]);
             }
         }
         return $response;

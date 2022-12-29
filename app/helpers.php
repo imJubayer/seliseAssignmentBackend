@@ -29,27 +29,6 @@ function getProfileInfo($userId=null){
 
     $usr = User::find($id);
     if($user){
-        $totalDeposit = Deposit::where([
-            ['user_id', $id],
-            ['status', 1]
-        ])->sum('amount');
-
-        $totalFundRaising = Deposit::where([
-            ['user_id', $id],
-            ['status', 1]
-        ])->sum('fund_raising');
-
-        $totalFine = Deposit::where([
-            ['user_id', $id],
-            ['status', 1]
-        ])->sum('fine');
-    
-        $totalDue = Deposit::where([
-            ['user_id', $id],
-            ['status', 0],
-            ['deposit_for' , '<', Carbon::now()]
-        ])->sum('amount');
-    
         $roles = $usr->getRoleNames();
         $user->totalDeposit = (int)$totalDeposit;
         $user->totalDue = (int)$totalDue;
