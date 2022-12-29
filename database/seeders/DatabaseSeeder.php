@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 use App\Models\User;
+use App\Models\Book;
 
 class DatabaseSeeder extends Seeder
 {
@@ -17,6 +18,7 @@ class DatabaseSeeder extends Seeder
     {
         DB::statement('SET FOREIGN_KEY_CHECKS = 0');
         User::truncate();
+        Book::truncate();
 
         $this->call(RoleSeeder::class);
 
@@ -35,5 +37,7 @@ class DatabaseSeeder extends Seeder
         $users->each(function ($user, $key){
             $user->assignRole('member');
         });
+
+        Book::factory(10)->create();
     }
 }
