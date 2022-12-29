@@ -38,6 +38,6 @@ class DatabaseSeeder extends Seeder
             $user->assignRole('member');
         });
 
-        Book::factory(5)->create();
+        Book::factory(10)->create();
     }
 }

@@ -28,6 +28,8 @@ Route::middleware(['auth:sanctum', 'role:superadmin|admin|member'])->group(funct
     Route::get('/user/change-status/{user}', [UserController::class, 'changeStatus']);
     Route::get('/users', [UserController::class, 'index']);
     Route::get('/profile/{id}', [UserController::class, 'getUserById']);
+    Route::get('/profile', [UserController::class, 'getProfile']);
+    Route::get('/logout', [UserController::class, 'logout']);
     // Roles
     Route::get('/roles', [RoleController::class, 'index']);
     Route::post('/roles', [RoleController::class, 'store']);
